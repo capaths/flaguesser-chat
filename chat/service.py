@@ -17,7 +17,6 @@ class ChatService:
 
     @rpc
     def validate_message(self, sender, content):
-        # TODO: Verify if sender is a player
         content_not_empty = len(content) > 0
         sender_exists = self.player_rpc.get_player_by_username(sender) is not None
 

@@ -1,0 +1,26 @@
+sudo: required
+services:
+- docker
+language: python
+python:
+- '3.6'
+script:
+- pip install pytest==4.6.5
+- pip install -r requirements.txt
+- pytest test/test.py
+after_success:
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - docker build . -t ${DOCKER_USERNAME}/gameschat
+  - docker push ${DOCKER_USERNAME}/gameschat
+  - >
+    curl -s -X POST
+    -H "Content-Type: application/json"
+    -H "Accept: application/json"
+    -H "Travis-API-Version: 3"
+    -H "Authorization: token ${TRAVIS_API_TOKEN}"
+    -d '{"request":{"branch":"master"}}'
+    https://api.travis-ci.org/repo/${TRAVIS_USERNAME}%2F${TRAVIS_REPO}/requests
+
+env:
+  global:
+    secure: Ydcfj9724W0wsNbFfBT0JOt152315Q/KuB5UNcwTOWN71wPOqgjHkWsiFqdxNsajJrDmb8QT5KEUDhQJYfGwVrFNvAduKNasNrg0S/NqWiQza+Ykval7TftI9fKctegaDOffXadiOST0ttzXLvYNi1UJHc8CZ1mVEDmq8AVXVfIOM1ExYOp2P24AAabvFc+6m0thtQShbvSGSPT9ss8rvARhwaDR20pDamxlaW/K0WsluXlA8XBRl1GNAeMADlpr1ipC+rX34tNHXldw3kFKF6qRMW2RjLfi4LoGwqpccJ4d+u/3av1W2cPgxsIzPyD06WA2GMlDtfmEjkFLBP7PrEPGGudUybS7209NpbfOc5ptCZxWDR4itJOZfemJU9UjKcLfh/kKiz3ym6/iEea0IP3+xa92PAk3b8ygi3usfHop5O26mfwRc77eYsnyOTQK8pqDjgShTuSlL2IzOt3O+NXbvVCU0U1cTeHqdjTygOdE6VN35JU07/lE2utPReyAPsU3qI5iM2pEqfVnH82SGQKTh2mVsiXi+niUzbEMGmH6DfiNnkxrs6odXGTC6wTjHvoLUUw1m/RzWsiBHQgb8e5CMJTMwRlon+wYnzxOPFD4WlcXkkTe5eF/ubDJY5PF8ICx+uR0ODXg+nLl38+chmQk50cQeFue10gG+QbnHA8=
