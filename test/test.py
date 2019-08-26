@@ -11,10 +11,7 @@ import json
 def test_chat_validation():
     service = worker_factory(ChatService)
 
-    service.player_rpc.get_player_by_username.side_effect = lambda username: username if username == 'test_user' else None
-
     assert service.validate_message("test_user", "Test Message") == "Test Message"
-    assert service.validate_message("non_user", "Test Message") is None
     assert service.validate_message("test_user", "") is None
 
 
