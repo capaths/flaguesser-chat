@@ -17,10 +17,9 @@ class ChatService:
 
     @rpc
     def validate_message(self, sender, content):
-        content_not_empty = len(content) > 0
-        sender_exists = self.player_rpc.get_player_by_username(sender) is not None
+        content_empty = len(content) == 0
 
-        if not sender_exists or not content_not_empty:
+        if content_empty:
             return None
 
         cleaned_content = html.escape(content)

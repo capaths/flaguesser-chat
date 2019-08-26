@@ -7,6 +7,7 @@ from chat.service import ChatService
 import time
 import json
 
+
 def test_chat_validation():
     service = worker_factory(ChatService)
 
@@ -24,12 +25,35 @@ def test_room_creation():
     service.player_rpc.get_player_by_username.side_effect = \
         lambda username: username if username in valid_users else None
 
-    assert service.create_room("Test Room", "userA") != service.create_room("Test Room", "userB")
-    assert service.create_room("Test Room", "userA") != service.create_room("Test Room B", "userA")
+    """
+    Test that different rooms generate different codes for:
+    - Different users
+    - Different room names
+    - Different creation time 
+    """
 
-    early_code = service.create_room("Test Room", "userA")
+    # different users
+    room_user_a = json.loads(service.create_room("room", "userA"))["room"]
+    room_user_b = json.loads(service.create_room("room", "userB"))["room"]
+
+    assert room_user_a["code"] != room_user_b["code"]
+
+    # different room names
+    print(service.create_room("room A", "user"))
+    room_a = json.loads(service.create_room("room A", "userA"))["room"]
+    room_b = json.loads(service.create_room("room B", "userB"))["room"]
+
+    assert room_a["code"] != room_b["code"]
+
+    # different room creation time
+    room_early = json.loads(service.create_room("room", "userA"))["room"]
     time.sleep(0.1)
-    late_code = service.create_room("Test Room", "userA")
+    room_late = json.loads(service.create_room("room", "userB"))["room"]
 
-    assert early_code != late_code
+    assert room_early["code"] != room_late["code"]
 
+    """
+    Don't create a room if creator username is not valid
+    """
+
+    assert service.create_room("room", "non_user") is None
