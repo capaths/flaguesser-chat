@@ -14,6 +14,10 @@ def test_chat_validation():
     assert service.validate_message("test_user", "Test Message") == "Test Message"
     assert service.validate_message("test_user", "") is None
 
+    not_escaped_message = "<script>alert('not validated')</script>"
+    escaped_message = "&lt;script&gt;alert(&#x27;not validated&#x27;)&lt;/script&gt;"
+    assert service.validate_message("test_user", not_escaped_message) == escaped_message
+
 
 def test_room_creation():
     service = worker_factory(ChatService)
